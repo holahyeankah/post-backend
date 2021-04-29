@@ -3,7 +3,9 @@ const {User}=db;
 const bcrypt= require('bcrypt');
 const jwt = require('jsonwebtoken');
 const {validationResult} =require ('express-validator');
-require('dotenv').config();
+const dotenv= require ('dotenv');
+dotenv.config();
+
 
 const signUp=(req,res)=>{   
 const {password, email,first_name, last_name} = req.body;
@@ -42,7 +44,6 @@ User.create({
 
 const signIn=(req,res)=>{
 const {email, password}= req.body;
-console.log(req.body)
 User.findOne({
     
         where:{
@@ -63,12 +64,10 @@ User.findOne({
                     name:user.first_name + " " + user.last_name
                  }
                    
-              jwt.sign({payrol},"access-token", {expiresIn: '1d'}, (err, token)=>{
+              jwt.sign({payrol},process.env.SECRET_KEY, {expiresIn: '1d'}, (err, token)=>{
                         res.json({message:
                         "Login successfuly",
-                          token,
-                       
-                      
+                          token,                     
                          } )
                  
          })
@@ -106,7 +105,7 @@ function verifyToken(req, res, next){
     if(typeof bearerHeader !=='undefined'){
     const bearer= bearerHeader.split(' ');
     const bearerToken=bearer[1];
-        jwt.verify(bearerToken, "access-token", (err, token) => {
+        jwt.verify(bearerToken, process.env.SECRET_KEY, (err, token) => {
             if (err) {
                return res.status(401).json({ message: 'unverified token'})
             } else {
